@@ -1,0 +1,11 @@
+[haproxy]
+pgha
+
+[postgres_cluster]
+pgnode1
+pgnode2
+pgnode3
+
+[all:children]
+postgres_cluster
+haproxy
