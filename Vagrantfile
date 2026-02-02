@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
 
     (1..3).each do |n|
         config.vm.define "pgnode#{n}" do |vm|
-            setup_vm(vm, "pgnode#{n}", "#{NETWORK}.{6 + n}", 1512, 1)
+            setup_vm(vm, "pgnode#{n}", "#{NETWORK}.#{n + 6}", 1512, 1)
             vm.vm.disk :disk, size: "25GB", name: "pgnode#{n}_data"
         end
     end

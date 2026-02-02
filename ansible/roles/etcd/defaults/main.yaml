@@ -1,0 +1,43 @@
+---
+
+etcd_version: "3.6.7"
+
+etcd_architecture: "amd64"
+
+github_url: "https://github.com/etcd-io/etcd/releases/download"
+
+download_url: "{{ github_url  }}/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-{{ etcd_architecture }}.tar.gz"
+
+etcd_checksum: "sha256:ef5fc443cf7cc5b82738f3c28363704896551900af90a6d622cae740b5644270"
+
+etcd_group: "etcd"
+
+etcd_group_system: true
+
+#etcd_group_id:
+
+etcd_user: "etcd"
+
+etcd_user_system: true
+
+#etcd_user_id:
+
+#etcd_user_home:
+
+etcd_user_shell: "/usr/sbin/nologin"
+
+etcd_config_dir: "/etc/etcd"
+
+etcd_config_dir_mode: "0755"
+
+etcd_data_dir: "/var/lib/etcd"
+
+etcd_data_dir_mode: "0700"
+
+etcd_download_dir: "/opt/etcd"
+
+etcd_download_dir_mode: "0755"
+
+etcd_bin_dir: "/usr/local/bin"
+
+etcd_bin_dir_mode: "0755"

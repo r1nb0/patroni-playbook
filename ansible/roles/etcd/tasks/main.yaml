@@ -1,0 +1,86 @@
+---
+
+- name: Create etcd group
+  when:
+    - etcd_group != "root"
+  ansible.builtin.group:
+    name: "{{ etcd_group }}"
+    system: "{{ etcd_group_system | bool}}"
+    gid: "{{ etcd_group_id | default(omit) }}"
+    state: present
+
+- name: Create etcd user
+  when:
+    - etcd_user != "root"
+  ansible.builtin.user:
+    name: "{{ etcd_user }}"
+    system: "{{ etcd_user_system | bool }}"
+    uid: "{{ etcd_user_id | default(omit) }}"
+    create_home: "{{ (etcd_user_home is defined and etcd_user_system != true) | bool }}"
+    group: "{{ etcd_group }}"
+    shell: "{{ etcd_user_shell }}"
+    state: present
+
+- name: Create etcd bin directory
+  when:
+    - etcd_bin_dir not in ["/usr/local/bin", "/usr/local/bin/"]
+  ansible.builtin.file:
+    path: "{{ etcd_bin_dir }}"
+    mode: "{{ etcd_bin_dir_mode }}"
+    owner: "root"
+    group: "root"
+    state: directory
+
+- name: Create etcd config directory
+  ansible.builtin.file:
+    path: "{{ etcd_config_dir }}"
+    mode: "{{ etcd_config_dir_mode }}"
+    owner: "{{ etcd_user }}"
+    group: "{{ etcd_group }}"
+    state: directory
+
+- name: Create etcd data directory
+  ansible.builtin.file:
+    path: "{{ etcd_data_dir }}"
+    mode: "{{ etcd_data_dir_mode }}"
+    owner: "{{ etcd_user }}"
+    group: "{{ etcd_group }}"
+    state: directory
+
+- name: Create etcd download directory
+  ansible.builtin.file:
+    path: "{{ etcd_download_dir }}"
+    mode: "{{ etcd_download_dir_mode }}"
+    owner: "{{ etcd_user }}"
+    group: "{{ etcd_group }}"
+    state: directory
+
+- name: Download etcd release
+  ansible.builtin.get_url:
+    url: "{{ download_url }}"
+    dest: "{{ etcd_download_dir }}/etcd-v{{ etcd_version }}-linux-{{ etcd_architecture }}.tar.gz"
+    checksum: "{{ etcd_checksum }}"
+    owner: "{{ etcd_user }}"
+    group: "{{ etcd_group }}"
+    mode: "0644"
+
+- name: Unarchive downloaded release
+  ansible.builtin.unarchive:
+    src: "{{ etcd_download_dir }}/etcd-v{{ etcd_version }}-linux-{{ etcd_architecture }}.tar.gz"
+    dest: "{{ etcd_download_dir }}/"
+    remote_src: true
+    owner: "{{ etcd_user }}"
+    group: "{{ etcd_group }}"
+    creates: "{{ etcd_download_dir }}/etcd-v{{ etcd_version }}-linux-{{ etcd_architecture }}/etcd"
+
+- name: Copy etcd binaries to dest directory
+  ansible.builtin.copy:
+    src: "{{ etcd_download_dir }}/etcd-v{{ etcd_version }}-linux-{{ etcd_architecture }}/{{ item }}"
+    dest: "{{ etcd_bin_dir }}/{{ item }}"
+    remote_src: yes
+    owner: "root"
+    group: "root"
+    mode: "0755"
+    loop:
+      - "etcd"
+      - "etcdctl"
